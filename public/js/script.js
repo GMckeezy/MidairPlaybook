@@ -23,7 +23,8 @@ $(function(){
   });
 
   if(getParameterByName('map')){
-    loadImage(function() {
+    console.log('here')
+    loadImage(getParameterByName('map'), function() {
       createListeners();
       joinRoom();
     });  
@@ -70,13 +71,14 @@ $(function(){
   }
 
   function loadMap(mapName) {
+    console.log(mapName);
     createNewRoom(mapName);
-    loadImage(function() {
+    loadImage(mapName, function() {
       createListeners();
     });
   }
 
-  function loadImage(cb) {
+  function loadImage(mapName, cb) {
     var context = document.getElementById('myCanvas').getContext('2d');
     var img = new Image();
     img.onload = function () {
@@ -86,7 +88,7 @@ $(function(){
         console.log('loaded')
         return cb();
     }
-    img.src = BASE_URL + "img/kryosis.png";
+    img.src = BASE_URL + "img/maps/" + mapName + ".png";
   }
 
   function addText(x, y, text){
@@ -257,6 +259,17 @@ $(function(){
   document.getElementById('kryosis').addEventListener('click', e => {
     e.preventDefault();
     loadMap('kryosis');
+  });
+
+  document.getElementById('sunset').addEventListener('click', e => {
+    e.preventDefault();
+    loadMap('sunset cove');
+  });
+
+
+  document.getElementById('brynhildr').addEventListener('click', e => {
+    e.preventDefault();
+    loadMap('brynhildr');
   });
 });
 
