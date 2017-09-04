@@ -1,4 +1,4 @@
-var socket = io.connect('http://203.213.114.4:3000/');
+var socket = io.connect('https://mysterious-hamlet-45975.herokuapp.com/');
 var loaded = false;
 var isDrawing = false;
 var isDragging = false;
