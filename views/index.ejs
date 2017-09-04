@@ -1,0 +1,125 @@
+<html>
+	<head>
+	  <title>Midair</title>
+	  <style>
+  .controls {
+	  position: absolute;
+	  top: 20px;
+	  left: 20px;
+	  z-index: 20;
+  }
+  
+  .controls a {
+	  background: #2a2a2a;
+	  background: rgba(0, 0, 0, .6);
+	  display: block;
+	  float: left;
+	  clear: both;
+	  font-size: 11px;
+	  font-weight: bold;
+	  line-height: 28px;
+	  margin-bottom: 4px;
+	  outline: none;
+	  padding: 0 15px;
+	  text-decoration: none;
+	  color: #fff;
+  }
+  
+  .jctx {
+	  display: none;
+	  z-index: 1000;
+	  position: absolute;
+	  overflow: hidden;
+	  border: 1px solid #595959;
+	  white-space: nowrap;
+	  font-family: sans-serif;
+	  font-size: 12px;
+	  border-radius: 2px;
+	  padding: 0;
+	  opacity: 0;
+	  -webkit-transition:opacity 200ms;
+	  -moz-transition:opacity 200ms;
+	  -o-transition:opacity 200ms;
+	  -ms-transition:opacity 200ms;
+  }
+  
+  .jctx-black {
+	  background: black;
+	  color: white;
+  }
+  
+  .jctx-white {
+	  background: white;
+	  color: black;
+  }
+  
+  .jctx-white-shadow {
+	  box-shadow: 0 0 15px grey;
+  }
+  
+  .jctx-black-shadow {
+	  box-shadow: 0 0 15px black;
+  }
+  
+  .jctx li {
+	  padding: 5px 8px;
+	  cursor: pointer;
+  }
+  
+  .jctx li.disabled {
+	  color: darkgrey;
+	  cursor: default;
+  }
+  
+  .jctx-black li:hover {
+	  background-color: #284160;
+  }
+  
+  .jctx-white li:hover {
+	  background-color: #81B2D6;
+  }
+  
+  .jctx-black li.disabled:hover {
+	  background-color: #202020;
+  }
+  
+  .jctx-white li.disabled:hover {
+	  background-color: lightgrey;
+  }
+  
+  .jctx i {
+	  padding-right: 6px
+  }
+  
+  .jctx hr {
+	  background-color: grey;
+	  height: 1px;
+	  border: 0;
+	  margin: 2px 0px;
+  }
+	  </style>
+	</head>
+	<body>
+	  <div class="controls">
+		<a href="#" id="kryosis">Kryosis</a>
+	  </div>
+	  <canvas class="jctx-host jctx-id-foo" id="myCanvas" width="1280" height="720"></canvas>
+  
+	  <ul class="jctx jctx-id-foo jctx-black jctx-black-shadow">
+		  <li data-action="flag">Flag</li>
+		  <li data-action="turret">Turret</li>
+		  <li data-action="inventory">Inventory</li>
+		  <hr>
+		  <li data-action="ld">LD</li>
+		  <li data-action="homed">HomeD</li>
+		  <li data-action="capper">Capper</li>
+		  <li data-action="lo">LO</li>
+		  <hr>
+		  <li data-action="undo">Undo Last Action</li>
+		</ul>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+	  <script src="/js/justcontext.js"></script>
+	  <script src="js/script.js"></script>
+	</body>
+  </html>
