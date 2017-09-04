@@ -1,4 +1,4 @@
-var socket = io.connect('https://mysterious-hamlet-45975.herokuapp.com/');
+var socket = io.connect('http://localhost:3000/');
 var loaded = false;
 var isDrawing = false;
 var isDragging = false;
@@ -85,39 +85,56 @@ $(function(){
         console.log('loaded')
         return cb();
     }
-    img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/kryosis.png";
+    img.src = "http://localhost:3000/img/kryosis.png";
   }
 
   function addText(x, y, text){
     var canvas = document.getElementById('myCanvas');
     var ctx = canvas.getContext('2d');
 
-    storedLines.push({
-      type: 'text',
-      text: newImage.text,
-      x: x,
-      y: y,
-      id: objectID
-    });
-
     ctx.fillStyle = "red";
     ctx.font = "bold 24px Arial";
     ctx.fillText(text || newImage.text, x, y);  
     newImage.placing = false;
-    socket.emit('data', storedLines);
   }
 
   function addImage(x, y) {
     switch(newImage.type) {
       case 'turret':
+        storedLines.push({
+          type: 'turret',
+          x: x,
+          y: y,
+          posX: 0,
+          posY: 0,
+          id: objectID
+        });
+        socket.emit('data', storedLines);
         addTurret(x, y);
         break;
 
       case 'flag':
+        storedLines.push({
+          type: 'flag',
+          x: x,
+          y: y,
+          posX: 0,
+          posY: 0,
+          id: objectID
+        });
+        socket.emit('data', storedLines);
         addFlag(x, y);
         break;
 
       case 'text':
+        storedLines.push({
+          type: 'text',
+          text: newImage.text,
+          x: x,
+          y: y,
+          id: objectID
+        });
+        socket.emit('data', storedLines);
         addText(x, y);
         break;
 
@@ -130,41 +147,20 @@ $(function(){
     var context = document.getElementById('myCanvas').getContext('2d');
     var img = new Image();
     img.onload = function () {
-      storedLines.push({
-        type: 'turret',
-        x: x,
-        y: y,
-        posX: 0,
-        posY: 0,
-        id: objectID
-      });
       context.drawImage(img, x - 32 ||0, y - 32 || 0, 64, 64);
       newImage.placing = false;
-      socket.emit('data', storedLines);
-      return cb();
     }
-    img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/turret.png";  
+    img.src = "http://localhost:3000/img/turret.png";  
   }
 
-  function addFlag(x, y, cb) {
+  function addFlag(x, y) {
     var context = document.getElementById('myCanvas').getContext('2d');
     var img = new Image();
-    img.onload = function () {
-      storedLines.push({
-        type: 'flag',
-        x: x,
-        y: y,
-        posX: 0,
-        posY: 0,
-        id: objectID
-      });
-      
+    img.onload = function () {      
       context.drawImage(img, x - 32 ||0, y - 32 || 0, 64, 64);
       newImage.placing = false;
-      socket.emit('data', storedLines);
-      return cb();
     }
-    img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/flag.png";    
+    img.src = "http://localhost:3000/img/flag.png";    
   }
 
   function createListeners() {
@@ -184,6 +180,7 @@ $(function(){
           y2: y,
           id: objectID
         });
+        socket.emit('data', storedLines);
         if (lastX && lastY && (x !== lastX || y !== lastY)) {
           ctx.fillStyle = "#000000";
           ctx.lineWidth = 4;
@@ -215,7 +212,6 @@ $(function(){
       lastX = null;
       lastY = null;
       isDrawing = false;
-      socket.emit('data', storedLines);
     };  
   }
 
@@ -241,7 +237,6 @@ $(function(){
         ctx.fillStyle = "#000000";
         ctx.lineWidth = 4;
         ctx.beginPath();
-        console.log(storedLines[i].id)
         ctx.moveTo(storedLines[i].x1,storedLines[i].y1);
         ctx.lineTo(storedLines[i].x2,storedLines[i].y2);
         ctx.stroke();
@@ -264,8 +259,10 @@ $(function(){
   });
 });
 
+var i = 0;
+
 function handleMenuAction(evt) {
-  console.log(evt);
+  console.log(i);
   switch (evt) {
     case 'undo':
       undo();
