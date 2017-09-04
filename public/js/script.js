@@ -104,6 +104,7 @@ $(function(){
     ctx.font = "bold 24px Arial";
     ctx.fillText(text || newImage.text, x, y);  
     newImage.placing = false;
+    socket.emit('data', storedLines);
   }
 
   function addImage(x, y) {
@@ -139,6 +140,7 @@ $(function(){
       });
       context.drawImage(img, x - 32 ||0, y - 32 || 0, 64, 64);
       newImage.placing = false;
+      socket.emit('data', storedLines);
       return cb();
     }
     img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/turret.png";  
@@ -159,6 +161,7 @@ $(function(){
       
       context.drawImage(img, x - 32 ||0, y - 32 || 0, 64, 64);
       newImage.placing = false;
+      socket.emit('data', storedLines);
       return cb();
     }
     img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/flag.png";    
@@ -204,7 +207,6 @@ $(function(){
       x = e.pageX - this.offsetLeft;
       y = e.pageY - this.offsetTop;
       objectID++
-      console.log(newImage);
       if(newImage.placing) return addImage(x,y );
       isDrawing = true;
     };
