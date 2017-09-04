@@ -85,7 +85,7 @@ $(function(){
         console.log('loaded')
         return cb();
     }
-    img.src = "http://localhost:3000/img/kryosis.png";
+    img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/kryosis.png";
   }
 
   function addText(x, y, text){
@@ -141,7 +141,7 @@ $(function(){
       newImage.placing = false;
       return cb();
     }
-    img.src = "http://localhost:3000/img/turret.png";  
+    img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/turret.png";  
   }
 
   function addFlag(x, y, cb) {
@@ -161,7 +161,7 @@ $(function(){
       newImage.placing = false;
       return cb();
     }
-    img.src = "http://localhost:3000/img/flag.png";    
+    img.src = "https://mysterious-hamlet-45975.herokuapp.com/img/flag.png";    
   }
 
   function createListeners() {
