@@ -1,4 +1,5 @@
-var socket = io.connect('http://localhost:3000/');
+var BASE_URL = 'https://mysterious-hamlet-45975.herokuapp.com/';
+var socket = io.connect(BASE_URL);
 var loaded = false;
 var isDrawing = false;
 var isDragging = false;
@@ -85,7 +86,7 @@ $(function(){
         console.log('loaded')
         return cb();
     }
-    img.src = "http://localhost:3000/img/kryosis.png";
+    img.src = BASE_URL + "img/kryosis.png";
   }
 
   function addText(x, y, text){
@@ -150,7 +151,7 @@ $(function(){
       context.drawImage(img, x - 32 ||0, y - 32 || 0, 64, 64);
       newImage.placing = false;
     }
-    img.src = "http://localhost:3000/img/turret.png";  
+    img.src = BASE_URL + "img/turret.png";  
   }
 
   function addFlag(x, y) {
@@ -160,7 +161,7 @@ $(function(){
       context.drawImage(img, x - 32 ||0, y - 32 || 0, 64, 64);
       newImage.placing = false;
     }
-    img.src = "http://localhost:3000/img/flag.png";    
+    img.src = BASE_URL + "img/flag.png";    
   }
 
   function createListeners() {
