@@ -1,8 +1,7 @@
-var BASE_URL = 'https://mysterious-hamlet-45975.herokuapp.com/';
+var BASE_URL = 'http://localhost:3000/';
 var socket = io.connect(BASE_URL);
 var loaded = false;
 var isDrawing = false;
-var isDragging = false;
 var lastX;
 var lastY;
 var newImage = {
@@ -10,24 +9,85 @@ var newImage = {
 }
 var storedLines = [];
 var objectID = 0;
+var handleMenuAction;
+
 $(function(){
 
   socket.on('getData', data => {
+    if(!data || !data.length) return;
     storedLines = data;
     createFromStorage(storedLines);
   });
 
   socket.on('getLines', () => {
-    console.log('sending lines');
-   socket.emit('data', storedLines);
+   socket.emit('data', { room: getParameterByName('room'), storedLines: storedLines});
   });
 
+  socket.on('saved', () => {
+    console.log('saved');
+  });
+
+  registerButtonHandlers();
   if(getParameterByName('map')){
-    console.log('here')
     loadImage(getParameterByName('map'), function() {
       createListeners();
       joinRoom();
     });  
+  }
+
+  function registerButtonHandlers() {
+    var modal = document.getElementById('shareModal');
+    var btn = document.getElementById("shareModalBtn");
+    var span = document.getElementsByClassName("close")[0];
+    
+    btn.onclick = function() {
+      modal.style.display = "block";
+      var input = document.getElementById('shareUrl');
+      input.value = window.location;
+    }
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+    window.onclick = function(event) {
+      if (event.target == modal) {
+          modal.style.display = "none";
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', e => {
+      e.preventDefault();
+      socket.emit('save', {
+        map: getParameterByName('map'),
+        token: getParameterByName('room'),
+        storedLines: storedLines
+      });
+    });
+
+    document.getElementById('zoomIn').addEventListener('click', e => {
+      e.preventDefault();
+      var canvas = document.getElementById('myCanvas');
+      var ctx = canvas.getContext('2d');
+      ctx.scale(2, 2);
+      loadImage(getParameterByName('map'), function() {
+        createFromStorage(storedLines);
+      });
+    })
+
+    document.getElementById('kryosis').addEventListener('click', e => {
+      e.preventDefault();
+      loadMap('kryosis');
+    });
+  
+    document.getElementById('sunset').addEventListener('click', e => {
+      e.preventDefault();
+      loadMap('sunset cove');
+    });
+  
+  
+    document.getElementById('brynhildr').addEventListener('click', e => {
+      e.preventDefault();
+      loadMap('brynhildr');
+    });
   }
 
   function makeid() {
@@ -53,25 +113,17 @@ $(function(){
   function joinRoom() {
     var room = getParameterByName('room');
     socket.emit('room', room);
-    socket.emit('newClient');
-  }
-
-  function socketHandlers(){
-    socket.on('getData', (data) => {
-      console.log(data);
-      createFromStorage(data);
-    });
+    socket.emit('newClient', room);
   }
 
   function createNewRoom(mapName) {
     var newRoom = makeid();
     socket.emit('room', newRoom);
-    document.location += '?room=' + newRoom + '&map=' + mapName;
+    document.location = BASE_URL +  '?room=' + newRoom + '&map=' + mapName;
     socketHandlers();
   }
 
   function loadMap(mapName) {
-    console.log(mapName);
     createNewRoom(mapName);
     loadImage(mapName, function() {
       createListeners();
@@ -85,7 +137,6 @@ $(function(){
         img.height = '64px';
         img.width = '64px';
         context.drawImage(img, 0, 0);
-        console.log('loaded')
         return cb();
     }
     img.src = BASE_URL + "img/maps/" + mapName + ".png";
@@ -112,7 +163,7 @@ $(function(){
           posY: 0,
           id: objectID
         });
-        socket.emit('data', storedLines);
+        socket.emit('data', { room: getParameterByName('room'), storedLines: storedLines});
         addTurret(x, y);
         break;
 
@@ -125,7 +176,7 @@ $(function(){
           posY: 0,
           id: objectID
         });
-        socket.emit('data', storedLines);
+        socket.emit('data', { room: getParameterByName('room'), storedLines: storedLines});
         addFlag(x, y);
         break;
 
@@ -137,7 +188,7 @@ $(function(){
           y: y,
           id: objectID
         });
-        socket.emit('data', storedLines);
+        socket.emit('data', { room: getParameterByName('room'), storedLines: storedLines});
         addText(x, y);
         break;
 
@@ -183,7 +234,7 @@ $(function(){
           y2: y,
           id: objectID
         });
-        socket.emit('data', storedLines);
+        socket.emit('data', { room: getParameterByName('room'), storedLines: storedLines});
         if (lastX && lastY && (x !== lastX || y !== lastY)) {
           ctx.fillStyle = "#000000";
           ctx.lineWidth = 4;
@@ -226,7 +277,7 @@ $(function(){
     });
     ctx.clearRect(0,0,1200, 720);
     objectID--;
-    loadImage(function() {
+    loadImage(getParameterByName('map'), function() {
       createFromStorage(lines);
     });
   }
@@ -256,79 +307,60 @@ $(function(){
     storedLines = lines;
   }
 
-  document.getElementById('kryosis').addEventListener('click', e => {
-    e.preventDefault();
-    loadMap('kryosis');
-  });
-
-  document.getElementById('sunset').addEventListener('click', e => {
-    e.preventDefault();
-    loadMap('sunset cove');
-  });
-
-
-  document.getElementById('brynhildr').addEventListener('click', e => {
-    e.preventDefault();
-    loadMap('brynhildr');
-  });
-});
-
-var i = 0;
-
-function handleMenuAction(evt) {
-  console.log(i);
-  switch (evt) {
-    case 'undo':
-      undo();
-      break;
-
-    case 'turret':
-      newImage = {
-        placing: true,
-        type: 'turret'
-      }
-      break;
-
-    case 'flag':
-      newImage = {
-        placing: true,
-        type: 'flag'
-      };
-      break;
-
-    case 'ld':
-      newImage = {
-        placing: true,
-        type: 'text',
-        text: 'LD'
-      };
-      break;
-
-    case 'homed':
-      newImage = {
-        placing: true,
-        type: 'text',
-        text: 'HOMED'
-      };
-      break;   
-      
-      case 'capper':
-      newImage = {
-        placing: true,
-        type: 'text',
-        text: 'CAPPER'
-      };
-      break;
-
-      case 'lo':
-      newImage = {
-        placing: true,
-        type: 'text',
-        text: 'LO'
-      };
-      break;  
-
-    default: 
-    alert("Action required: " + evt);
+  handleMenuAction = function(evt) {
+    switch (evt) {
+      case 'undo':
+        undo();
+        break;
+  
+      case 'turret':
+        newImage = {
+          placing: true,
+          type: 'turret'
+        }
+        break;
+  
+      case 'flag':
+        newImage = {
+          placing: true,
+          type: 'flag'
+        };
+        break;
+  
+      case 'ld':
+        newImage = {
+          placing: true,
+          type: 'text',
+          text: 'LD'
+        };
+        break;
+  
+      case 'homed':
+        newImage = {
+          placing: true,
+          type: 'text',
+          text: 'HOMED'
+        };
+        break;   
+        
+        case 'capper':
+        newImage = {
+          placing: true,
+          type: 'text',
+          text: 'CAPPER'
+        };
+        break;
+  
+        case 'lo':
+        newImage = {
+          placing: true,
+          type: 'text',
+          text: 'LO'
+        };
+        break;  
+  
+      default: 
+      alert("Action required: " + evt);
+    }    
   }
-}
+});

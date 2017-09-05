@@ -10,8 +10,12 @@ var app = express();
 var server = require('http').createServer(app)
 var io = require('socket.io').listen(server);
 var device  = require('express-device');
+var mongoose = require('mongoose');
+var playbook = require('./models/playbook');
 
 var runningPortNumber = process.env.PORT;
+
+mongoose.connect('mongodb://localhost/playbook');
 
 
 app.configure(function(){
@@ -41,21 +45,47 @@ app.get("/", function(req, res){
 
 
 io.sockets.on('connection', function (socket) {
-	var room;
 	socket.on('room', (socketRoom) => {
-		room = socketRoom;
-		console.log(socketRoom);
 		socket.join(socketRoom);
 	});
 
 	socket.on('data', data => {
-		console.log(room);
-		socket.broadcast.to(room).emit('getData', data);
+		console.log(data);
+		socket.broadcast.to(data.room).emit('getData', data.storedLines);
 	});
 
-	socket.on('newClient', () => {
-		console.log('new client');
-		socket.broadcast.to(room).emit('getLines');
+	socket.on('newClient', socketRoom => {
+		var roster = io.sockets.clients(socketRoom);
+		if(roster.length === 1) {
+			return playbook.findOne({token: socketRoom})
+				.then(doc => {
+					if(!doc) return;
+					return socket.emit('getData', doc.storedLines);
+				})
+		} else {
+			socket.broadcast.to(socketRoom).emit('getLines');
+		}
+	});
+
+	socket.on('save', data => {
+		playbook.findOne({token: data.token})
+			.then(doc => {
+				if(!doc) {
+					var newDoc = new playbook({
+						map: data.map,
+						token: data.token,
+						storedLines: data.storedLines
+					});
+					return newDoc.save();
+				} else {
+					doc.storedLines = data.storedLines;
+					return doc.save();
+				}
+			})
+			.then(() => {
+				return socket.emit('saved');
+			})
+			.catch(err => console.log(err));
 	})
 
 });
